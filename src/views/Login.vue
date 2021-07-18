@@ -3,18 +3,22 @@
     <h3>Sign In</h3>
     <input type="text" placeholder="Email"><br>
     <input type="password" placeholder="Password"><br>
-    <button>Connection</button>
-    <p>You don't have an account? You can create one</p>
+    <button @click="login">Connection</button>
+    <p>You don't have an account? You can <router-link to="/sign-up">create one</router-link></p>
   </div>
 </template>
 
 <script>
 export default {
   name: 'login',
-  data() {
-    return {};
+  data () {
+    return {}
   },
-  methods: {}
+  methods: {
+    login: function () {
+      this.$router.replace('home')
+    }
+  }
 }
 </script>
 
@@ -40,5 +44,4 @@ p a {
   text-decoration: underline;
   cursor: pointer;
 }
-
 </style>
