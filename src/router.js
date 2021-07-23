@@ -55,7 +55,6 @@ router.beforeEach((to, from, next) => {
   console.log(to);
   console.log(requiresAuth);
 
-  //ログインしてなくてもログインしてても見たいページが見れない....
   if (!requiresAuth) next()
   else if (requiresAuth && !currentUser) next('login')
   else next()

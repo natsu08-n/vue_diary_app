@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-    <button @click="logout">LogOut</button>
+    <HelloWorld msg="ログイン後のページです"/>
+    <button @click="logout">ログアウト</button>
   </div>
 </template>
 
