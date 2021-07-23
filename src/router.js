@@ -1,19 +1,26 @@
+import firebase from 'firebase'
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
-import Login from './views/Login.vue'
-import SignUp from './views/SignUp.vue'
+
+import Home from '@/views/Home.vue'
+import Login from '@/views/Login.vue'
+import SignUp from '@/views/SignUp.vue'
+import Common from '@/views/Common.vue'
+
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/home',
-      name: 'home',
-      component: Home
+      path: '*',
+      redirect: '/login'
+    },
+    {
+      path: '/',
+      redirect: '/login'
     },
     {
       path: '/login',
@@ -22,8 +29,36 @@ export default new Router({
     },
     {
       path: '/sign-up',
-      name: 'signUp',
+      name: 'SignUp',
       component: SignUp
+    },
+    {
+      path: '/home',
+      name: 'Home',
+      component: Home,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/common',
+      name: 'Common',
+      component: Common,
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const currentUser = firebase.auth().currentUser
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+  console.log(to);
+  console.log(requiresAuth);
+
+  //ログインしてなくてもログインしてても見たいページが見れない....
+  if (!requiresAuth) next()
+  else if (requiresAuth && !currentUser) next('login')
+  else next()
+})
+
+export default router

@@ -10,7 +10,7 @@
 
 <script>
 
-import firebase from 'firebase';
+import firebase from 'firebase'
 
 export default {
   name: 'login',
@@ -24,13 +24,14 @@ export default {
     login: function () {
       // this.$router.replace('home')
       firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(
-        function(user) {
-          alert('well done! You are now connected')
+        (user) => {
+          // console.log(user);
+          this.$router.replace('home')
         },
-        function(err) {
+        (err) => {
           alert('Oops. ' + err.message)
         }
-      );
+      )
     }
   }
 }
