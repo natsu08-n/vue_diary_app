@@ -6,7 +6,7 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-let app = '';
+let app = ''
 
 // Your web app's Firebase configuration
 firebase.initializeApp({
@@ -19,12 +19,10 @@ firebase.initializeApp({
 })
 
 firebase.auth().onAuthStateChanged(() => {
-  if(!app) {
+  if (!app) {
     app = new Vue({
       router,
       render: h => h(App)
     }).$mount('#app')
   }
 })
-
-
