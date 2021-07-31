@@ -4,17 +4,21 @@
     <form action="" @submit.prevent="addItem">
       <div class="form__date">
         <!-- forにinputタグと同じ"date"を入れることで連動している -->
-        <label for="date">日付を選んでください</label>
+        <label for="date">
+          <h2>日付を選んでください</h2>
+        </label>
         <div>
           <v-date-picker :attributes="attrs" v-model="date">
             <template v-slot="{ inputValue, inputEvents }">
-              <input id="date" v-bind:value="inputValue" v-on="inputEvents" />
+              <input class="form__inputDate" id="date" v-bind:value="inputValue" v-on="inputEvents" />
             </template>
           </v-date-picker>
         </div>
       </div>
       <div class="form__dairyContents">
-        <label for="contents">内容</label>
+        <label for="contents">
+          <h2>内容</h2>
+          </label>
         <div>
           <textarea
             name=""
@@ -25,9 +29,8 @@
           ></textarea>
         </div>
       </div>
-      <input type="submit" value="add" />
+      <input class="form__submit" type="submit" value="追加" />
     </form>
-    <p>memo:下にどんどん日記の内容が追加されていくようにしたい</p>
 
     <ul>
       <li v-for="diary in diaries" v-bind:key="diary">
@@ -80,18 +83,59 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+
+body {
+  font-family: "Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;
 }
+
+h2 {
+  color: #4c4a4a;
+  font-family: 'Noto Sans JP';
+  margin-bottom: 0;
+}
+
+p {
+  color: #4c4a4a;
+  font-family: 'Noto Sans JP';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
+  border: 1px solid #4c4a4a;
   display: inline-block;
-  margin: 0 10px;
+  margin-top: 10px;
+  padding: 10px;
+  width: 980px;
 }
-a {
-  color: #42b983;
+
+.form__inputDate,textarea {
+  border: 1px solid #252a36;
+  width: 220px;
+  padding: 10px;
+}
+
+textarea {
+  resize: none;
+}
+
+.form__submit {
+  color: #FFF;
+  background: #252a36;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-top: 20px;
+  padding: 10px;
+  width: 150px;
 }
 </style>
