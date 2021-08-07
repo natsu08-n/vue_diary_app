@@ -10,7 +10,12 @@
         <div>
           <v-date-picker :attributes="attrs" v-model="date">
             <template v-slot="{ inputValue, inputEvents }">
-              <input class="form__inputDate" id="date" v-bind:value="inputValue" v-on="inputEvents" />
+              <input
+                class="form__inputDate"
+                id="date"
+                v-bind:value="inputValue"
+                v-on="inputEvents"
+              />
             </template>
           </v-date-picker>
         </div>
@@ -18,7 +23,7 @@
       <div class="form__dairyContents">
         <label for="contents">
           <h2>内容</h2>
-          </label>
+        </label>
         <div>
           <textarea
             name=""
@@ -33,70 +38,106 @@
     </form>
 
     <ul>
-      <li v-for="diary in diaries" v-bind:key="diary">
-        <p>{{ diary.diaryDate }}</p>
-        <p>{{ diary.diaryContents }}</p>
+      <li v-for="item in snapShot" v-bind:key="item.id">
+        <p>{{ item.data().date | format }}</p>
+        <p>{{ item.data().contents }}</p>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
-import VCalendar from 'v-calendar'
-import dayjs from 'dayjs'
+import Vue from "vue";
+import VCalendar from "v-calendar";
+import dayjs from "dayjs";
+import { db } from "../main";
 
-Vue.use(VCalendar)
+Vue.use(VCalendar);
 
 export default {
-  name: 'DiaryForm',
+  name: "DiaryForm",
   data: function () {
     return {
       attrs: [
         {
-          key: 'today',
+          key: "today",
           // highlight: "red",
           dates: new Date(),
           popover: {
-            label: '今日はここ！'
-          }
-        }
+            label: "今日はここ！",
+          },
+        },
       ],
       date: null,
-      newItem: '',
-      inputEvents: '',
-      diaries: []
-    }
+      newItem: "",
+      inputEvents: "",
+      diaries: [],
+      snapShot: [],
+    };
   },
   methods: {
     addItem: function () {
       let item = {
-        diaryDate: dayjs(this.date).format('YYYY-MM-DD'),
-        diaryContents: this.newItem
-      }
-      this.diaries.push(item)
-      this.newItem = ''
-    }
-  }
-}
+        // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
+        diaryDate: this.date,
+        diaryContents: this.newItem,
+      };
+      this.diaries.push(item);
+      this.saveItem();
+      // this.loadItem();
+      this.newItem = "";
+    },
+    saveItem: function () {
+      db.collection("diaries")
+        .add({
+          date: this.date,
+          contents: this.newItem,
+        })
+        .then((docRef) => {
+          console.log("Document written with ID: ", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Error adding document: ", error);
+        });
+    },
+  },
+  mounted: function () {
+      // ビュー全体がレンダリングされた後にのみ実行されるコード
+      db.collection("diaries")
+        .get()
+        .then((querySnapshot) => {
+          this.snapShot = querySnapshot.docs;
+          console.log(this.snapShot);
+          querySnapshot.forEach((doc) => {
+            console.log(`${doc.id} => ${doc.data().contents}`);
+          });
+        });
+  },
+  filters: {
+    format: function (value) {
+      if (!value) return "";
+      return dayjs(value.toDate()).format('YYYY MM-DD HH:mm')
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 body {
-  font-family: "Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;
+  font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans", Meiryo, sans-serif;
 }
 
 h2 {
   color: #4c4a4a;
-  font-family: 'Noto Sans JP';
+  font-family: "Noto Sans JP";
   margin-bottom: 0;
 }
 
 p {
   color: #4c4a4a;
-  font-family: 'Noto Sans JP';
+  font-family: "Noto Sans JP";
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -109,15 +150,16 @@ ul {
 }
 
 li {
-  border: 1px solid #4c4a4a;
+  border: 1px solid #989185;
   display: inline-block;
   margin-top: 10px;
   padding: 10px;
   width: 980px;
 }
 
-.form__inputDate,textarea {
-  border: 1px solid #252a36;
+.form__inputDate,
+textarea {
+  border: 1px solid #4c4a4a;
   width: 220px;
   padding: 10px;
 }
@@ -127,7 +169,7 @@ textarea {
 }
 
 .form__submit {
-  color: #FFF;
+  color: #fff;
   background: #252a36;
   border: none;
   border-radius: 30px;

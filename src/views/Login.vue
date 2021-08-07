@@ -47,9 +47,17 @@ input {
   padding: 15px;
 }
 button {
-  margin-top: 20px;
-  width: 10%;
   cursor: pointer;
+  color: #fff;
+  background: #252a36;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-top: 20px;
+  padding: 10px;
+  width: 150px;
 }
 p {
   margin-top: 40px;
