@@ -117,6 +117,7 @@ export default {
     },
     getFirestoreDb: function () {
       db.collection("diaries")
+        .orderBy('date', 'desc') //firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順
         .get()
         .then((querySnapshot) => {
           this.snapShot = querySnapshot.docs;
