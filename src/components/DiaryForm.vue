@@ -41,6 +41,7 @@
       <li v-for="item in snapShot" v-bind:key="item.id">
         <p>{{ item.data().date | format }}</p>
         <p>{{ item.data().contents }}</p>
+        <button @click="deleteFirestoreDb(item.id)">削除</button>
       </li>
     </ul>
   </div>
@@ -71,7 +72,6 @@ export default {
       date: null,
       newItem: "",
       inputEvents: "",
-      diaries: [],
       snapShot: [],
     };
   },
@@ -79,12 +79,11 @@ export default {
     addItem: function () {
       let item = {
         // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
-        diaryDate: this.date,
-        diaryContents: this.newItem,
+        date: this.date,
+        contents: this.newItem,
       };
-      this.diaries.push(item);
+      // this.snapShot.push(item);
       this.saveItem();
-      // this.loadItem();
       this.newItem = "";
     },
     saveItem: function () {
@@ -95,28 +94,43 @@ export default {
         })
         .then((docRef) => {
           console.log("Document written with ID: ", docRef.id);
+          this.getFirestoreDb();
         })
         .catch((error) => {
           console.error("Error adding document: ", error);
         });
     },
-  },
-  mounted: function () {
-      // ビュー全体がレンダリングされた後にのみ実行されるコード
+    deleteFirestoreDb: function (id){
+      db.collection("diaries")
+        .doc(id)
+        .delete({
+          date: this.date,
+          contents: this.newItem,
+        })
+        .then(() => {
+          console.log("Document successfully deleted!");
+          this.snapShot = this.snapShot.filter((item) => item.id !==id);
+        })
+        .catch((error) => {
+          console.error("Error removing document: ", error);
+        });
+    },
+    getFirestoreDb: function () {
       db.collection("diaries")
         .get()
         .then((querySnapshot) => {
           this.snapShot = querySnapshot.docs;
-          console.log(this.snapShot);
-          querySnapshot.forEach((doc) => {
-            console.log(`${doc.id} => ${doc.data().contents}`);
-          });
         });
+    }
+  },
+  mounted: function () {
+    // ビュー全体がレンダリングされた後にのみ実行されるコード
+    this.getFirestoreDb();
   },
   filters: {
     format: function (value) {
       if (!value) return "";
-      return dayjs(value.toDate()).format('YYYY MM-DD HH:mm')
+      return dayjs(value.toDate()).format("YYYY MM-DD HH:mm");
     },
   },
 };
