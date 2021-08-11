@@ -1,5 +1,7 @@
 <template>
   <div>
+    <!-- とりあえず検索ボタンのみつけておく -->
+    <button @click="searchFirestoreDb">検索</button>
     <!-- @submit.preventでsubmitのページ遷移処理をキャンセルできる -->
     <form action="" @submit.prevent="addItem">
       <div class="form__date">
@@ -41,7 +43,9 @@
       <li v-for="item in snapShot" v-bind:key="item.id">
         <p>{{ item.data().date | format }}</p>
         <p>{{ item.data().contents }}</p>
-        <button @click="deleteFirestoreDb(item.id)">削除</button>
+        <button class="card__deleteBtn" @click="deleteFirestoreDb(item.id)">
+          削除
+        </button>
       </li>
     </ul>
   </div>
@@ -73,6 +77,7 @@ export default {
       newItem: "",
       inputEvents: "",
       snapShot: [],
+      keyword: "",
     };
   },
   methods: {
@@ -100,7 +105,7 @@ export default {
           console.error("Error adding document: ", error);
         });
     },
-    deleteFirestoreDb: function (id){
+    deleteFirestoreDb: function (id) {
       db.collection("diaries")
         .doc(id)
         .delete({
@@ -109,7 +114,7 @@ export default {
         })
         .then(() => {
           console.log("Document successfully deleted!");
-          this.snapShot = this.snapShot.filter((item) => item.id !==id);
+          this.snapShot = this.snapShot.filter((item) => item.id !== id);
         })
         .catch((error) => {
           console.error("Error removing document: ", error);
@@ -117,12 +122,30 @@ export default {
     },
     getFirestoreDb: function () {
       db.collection("diaries")
-        .orderBy('date', 'desc') //firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順
+        .orderBy("date", "desc")
+        .limit(15) //firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
         .get()
         .then((querySnapshot) => {
           this.snapShot = querySnapshot.docs;
         });
-    }
+    },
+    // 一旦指定の期間だけをコンソールに出力するやり方
+    searchFirestoreDb: function () {
+      let start = new Date("2021-08-04 00:00");
+      let end = new Date("2021-08-05 23:59");
+
+      db.collection("diaries").where("date", ">=", start).where("date", "<=", end)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            console.log(doc.id, " => ", doc.data().date);
+          });
+        })
+        .catch((error) => {
+          console.log("Error getting documents: ", error);
+        });
+    },
   },
   mounted: function () {
     // ビュー全体がレンダリングされた後にのみ実行されるコード
@@ -183,7 +206,8 @@ textarea {
   resize: none;
 }
 
-.form__submit {
+.form__submit,
+.card__deleteBtn {
   color: #fff;
   background: #252a36;
   border: none;
@@ -192,7 +216,21 @@ textarea {
   font-weight: bold;
   line-height: 1.2;
   margin-top: 20px;
+  opacity: 1;
   padding: 10px;
   width: 150px;
+}
+
+.form__submit:hover,
+.card__deleteBtn:hover {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.card__deleteBtn {
+  background-color: #eee;
+  color: #4c4a4a;
+  font-size: 14px;
+  width: 100px;
 }
 </style>
