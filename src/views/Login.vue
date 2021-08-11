@@ -56,8 +56,13 @@ button {
   font-weight: bold;
   line-height: 1.2;
   margin-top: 20px;
+  opacity: 1;
   padding: 10px;
   width: 150px;
+}
+button:hover {
+  cursor: pointer;
+  opacity: .5;
 }
 p {
   margin-top: 40px;
