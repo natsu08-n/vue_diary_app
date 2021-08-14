@@ -13,15 +13,15 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from 'firebase'
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
-import DiaryForm from "@/components/DiaryForm.vue";
+import DiaryForm from '@/components/DiaryForm.vue'
 
 export default {
-  name: "home",
+  name: 'home',
   components: {
-    DiaryForm,
+    DiaryForm
     // ,HelloWorld  ここは2つ指定できないのか？？
   },
   methods: {
@@ -30,11 +30,11 @@ export default {
         .auth()
         .signOut()
         .then(() => {
-          this.$router.replace("login");
-        });
-    },
-  },
-};
+          this.$router.replace('login')
+        })
+    }
+  }
+}
 </script>
 
 <style scoped>

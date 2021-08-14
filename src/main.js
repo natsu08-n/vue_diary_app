@@ -1,12 +1,12 @@
 import firebase from 'firebase'
 import Vue from 'vue'
 
-// const firebase = require("firebase");
-// Required for side-effects
-require("firebase/firestore");
-
 import App from './App.vue'
 import router from './router'
+
+// const firebase = require("firebase");
+// Required for side-effects
+require('firebase/firestore')
 
 Vue.config.productionTip = false
 
@@ -33,7 +33,6 @@ firebase.auth().onAuthStateChanged(() => {
 
 // ==============================
 // firestoreの記述
-export const db = firebase.firestore();
+export const db = firebase.firestore()
 
 // Add a second document with a generated ID.
-
