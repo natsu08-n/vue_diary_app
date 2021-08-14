@@ -1,7 +1,9 @@
 <template>
   <div>
-    <!-- とりあえず検索ボタンのみつけておく -->
+    <!-- 検索 -->
+    <input type="text" v-model="searchWord" placeholder="キーワード検索">
     <button @click="searchFirestoreDb">検索</button>
+
     <!-- @submit.preventでsubmitのページ遷移処理をキャンセルできる -->
     <form action="" @submit.prevent="addItem">
       <div class="form__date">
@@ -52,112 +54,107 @@
 </template>
 
 <script>
-import Vue from "vue";
-import VCalendar from "v-calendar";
-import dayjs from "dayjs";
-import { db } from "../main";
+import Vue from 'vue'
+import VCalendar from 'v-calendar'
+import dayjs from 'dayjs'
+import { db } from '../main'
+import firebase from 'firebase'
 
-Vue.use(VCalendar);
+Vue.use(VCalendar)
 
 export default {
-  name: "DiaryForm",
+  name: 'DiaryForm',
   data: function () {
     return {
       attrs: [
         {
-          key: "today",
+          key: 'today',
           // highlight: "red",
           dates: new Date(),
           popover: {
-            label: "今日はここ！",
-          },
-        },
+            label: '今日はここ！'
+          }
+        }
       ],
       date: null,
-      newItem: "",
-      inputEvents: "",
+      newItem: '',
+      inputEvents: '',
       snapShot: [],
-      keyword: "",
-    };
+      searchWord: ''
+    }
   },
   methods: {
     addItem: function () {
       let item = {
         // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
         date: this.date,
-        contents: this.newItem,
-      };
+        contents: this.newItem
+      }
       // this.snapShot.push(item);
-      this.saveItem();
-      this.newItem = "";
+      this.saveItem()
+      this.newItem = ''
     },
     saveItem: function () {
-      db.collection("diaries")
+      db.collection('diaries')
         .add({
           date: this.date,
-          contents: this.newItem,
+          contents: this.newItem
         })
         .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id);
-          this.getFirestoreDb();
+          console.log('Document written with ID: ', docRef.id)
+          this.getFirestoreDb()
         })
         .catch((error) => {
-          console.error("Error adding document: ", error);
-        });
+          console.error('Error adding document: ', error)
+        })
     },
     deleteFirestoreDb: function (id) {
-      db.collection("diaries")
+      db.collection('diaries')
         .doc(id)
         .delete({
           date: this.date,
-          contents: this.newItem,
+          contents: this.newItem
         })
         .then(() => {
-          console.log("Document successfully deleted!");
-          this.snapShot = this.snapShot.filter((item) => item.id !== id);
+          console.log('Document successfully deleted!')
+          this.snapShot = this.snapShot.filter((item) => item.id !== id)
         })
         .catch((error) => {
-          console.error("Error removing document: ", error);
-        });
+          console.error('Error removing document: ', error)
+        })
     },
     getFirestoreDb: function () {
-      db.collection("diaries")
-        .orderBy("date", "desc")
-        .limit(15) //firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
+      db.collection('diaries')
+        .orderBy('date', 'desc')
+        .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
         .get()
         .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs;
-        });
+          this.snapShot = querySnapshot.docs
+        })
     },
-    // 一旦指定の期間だけをコンソールに出力するやり方
     searchFirestoreDb: function () {
-      let start = new Date("2021-08-04 00:00");
-      let end = new Date("2021-08-05 23:59");
-
-      db.collection("diaries").where("date", ">=", start).where("date", "<=", end)
+      let filterWord = firebase.firestore.Timestamp.fromDate(new Date(this.searchWord)) // 日付は日付型と比較するため Date型にする
+      db.collection('diaries').orderBy('date', 'desc').startAt(filterWord)
         .get()
         .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            console.log(doc.id, " => ", doc.data().date);
-          });
+          this.snapShot = querySnapshot.docs
         })
         .catch((error) => {
-          console.log("Error getting documents: ", error);
-        });
-    },
+          console.log('Error getting documents: ', error)
+        })
+    }
   },
   mounted: function () {
     // ビュー全体がレンダリングされた後にのみ実行されるコード
-    this.getFirestoreDb();
+    this.getFirestoreDb()
   },
   filters: {
     format: function (value) {
-      if (!value) return "";
-      return dayjs(value.toDate()).format("YYYY MM-DD HH:mm");
-    },
-  },
-};
+      if (!value) return ''
+      return dayjs(value.toDate()).format('YYYY MM-DD HH:mm')
+    }
+  }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
