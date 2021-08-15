@@ -54,107 +54,122 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import VCalendar from 'v-calendar'
-import dayjs from 'dayjs'
-import { db } from '../main'
-import firebase from 'firebase'
+import Vue from "vue";
+import VCalendar from "v-calendar";
+import dayjs from "dayjs";
+import { db } from "../main";
+import firebase from "firebase";
 
-Vue.use(VCalendar)
+Vue.use(VCalendar);
 
 export default {
-  name: 'DiaryForm',
+  name: "DiaryForm",
   data: function () {
     return {
-      attrs: [
+      searchAttrs: [
         {
-          key: 'today',
+          key: "today",
           // highlight: "red",
           dates: new Date(),
           popover: {
-            label: '今日はここ！'
-          }
-        }
+            label: "aaaaa",
+          },
+        },
       ],
+      attrs: [
+        {
+          key: "today",
+          // highlight: "red",
+          dates: new Date(),
+          popover: {
+            label: "今日はここ！",
+          },
+        },
+      ],
+      searchdate: null,
       date: null,
-      newItem: '',
-      inputEvents: '',
+      newItem: "",
+      inputEvents: "",
       snapShot: [],
-      searchWord: ''
-    }
+      searchWord: "",
+    };
   },
   methods: {
     addItem: function () {
       let item = {
         // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
         date: this.date,
-        contents: this.newItem
-      }
+        contents: this.newItem,
+      };
       // this.snapShot.push(item);
-      this.saveItem()
-      this.newItem = ''
+      this.saveItem();
+      this.newItem = "";
     },
     saveItem: function () {
-      db.collection('diaries')
+      db.collection("diaries")
         .add({
           date: this.date,
-          contents: this.newItem
+          contents: this.newItem,
         })
         .then((docRef) => {
-          console.log('Document written with ID: ', docRef.id)
-          this.getFirestoreDb()
+          console.log("Document written with ID: ", docRef.id);
+          this.getFirestoreDb();
         })
         .catch((error) => {
-          console.error('Error adding document: ', error)
-        })
+          console.error("Error adding document: ", error);
+        });
     },
     deleteFirestoreDb: function (id) {
-      db.collection('diaries')
+      db.collection("diaries")
         .doc(id)
         .delete({
           date: this.date,
-          contents: this.newItem
+          contents: this.newItem,
         })
         .then(() => {
-          console.log('Document successfully deleted!')
-          this.snapShot = this.snapShot.filter((item) => item.id !== id)
+          console.log("Document successfully deleted!");
+          this.snapShot = this.snapShot.filter((item) => item.id !== id);
         })
         .catch((error) => {
-          console.error('Error removing document: ', error)
-        })
+          console.error("Error removing document: ", error);
+        });
     },
     getFirestoreDb: function () {
-      db.collection('diaries')
-        .orderBy('date', 'desc')
+      db.collection("diaries")
+        .orderBy("date", "desc")
         .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
         .get()
         .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs
-        })
+          this.snapShot = querySnapshot.docs;
+        });
     },
     searchFirestoreDb: function () {
-      let filterWord = firebase.firestore.Timestamp.fromDate(new Date(this.searchWord)) // 日付は日付型と比較するため Date型にする
-      db.collection('diaries').orderBy('date', 'desc').startAt(filterWord)
+      let filterWord = firebase.firestore.Timestamp.fromDate(
+        new Date(this.searchWord)
+      ); // 日付は日付型と比較するため Date型にする
+      db.collection("diaries")
+        .orderBy("date", "desc")
+        .startAt(filterWord)
         .get()
         .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs
+          this.snapShot = querySnapshot.docs;
         })
         .catch((error) => {
-          console.log('Error getting documents: ', error)
-        })
-    }
+          console.log("Error getting documents: ", error);
+        });
+    },
   },
   mounted: function () {
     // ビュー全体がレンダリングされた後にのみ実行されるコード
-    this.getFirestoreDb()
+    this.getFirestoreDb();
   },
   filters: {
     format: function (value) {
-      if (!value) return ''
-      return dayjs(value.toDate()).format('YYYY MM-DD HH:mm')
-    }
-  }
-}
+      if (!value) return "";
+      return dayjs(value.toDate()).format("YYYY MM-DD HH:mm");
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -182,6 +197,8 @@ p {
 ul {
   list-style-type: none;
   padding: 0;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 li {
@@ -189,7 +206,7 @@ li {
   display: inline-block;
   margin-top: 10px;
   padding: 10px;
-  width: 980px;
+  width: 100%;
 }
 
 .form__inputDate,
