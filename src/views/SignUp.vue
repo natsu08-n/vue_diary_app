@@ -1,9 +1,9 @@
 <template>
   <div class="sign-up">
-    <p>Let's create a new account !</p>
+    <h3>Let's create a new account !</h3>
     <input type="text" v-model="email" placeholder="Email"><br>
     <input type="password" v-model="password" placeholder="Password"><br>
-    <button @click="signUp">Sign Up</button>
+    <button @click="signUp">登録</button>
     <span>or go back to <router-link to="/login">login.</router-link></span>
   </div>
 </template>
@@ -34,7 +34,7 @@ export default {
 </script>
 
 <style scoped>
-.signUp {
+.sign-up {
   margin-top: 40px;
 }
 input {
@@ -43,9 +43,22 @@ input {
   padding: 15px;
 }
 button {
-  margin-top: 10px;
-  width: 10%;
   cursor: pointer;
+  color: #fff;
+  background: #252a36;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-top: 20px;
+  opacity: 1;
+  padding: 10px;
+  width: 150px;
+}
+button:hover {
+  cursor: pointer;
+  opacity: .5;
 }
 span {
   display: block;

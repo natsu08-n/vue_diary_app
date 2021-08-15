@@ -7,7 +7,6 @@ import Login from '@/views/Login.vue'
 import SignUp from '@/views/SignUp.vue'
 import Common from '@/views/Common.vue'
 
-
 Vue.use(Router)
 
 const router = new Router({
@@ -43,7 +42,7 @@ const router = new Router({
     {
       path: '/common',
       name: 'Common',
-      component: Common,
+      component: Common
     }
   ]
 })
@@ -51,9 +50,6 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   const currentUser = firebase.auth().currentUser
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-
-  console.log(to);
-  console.log(requiresAuth);
 
   if (!requiresAuth) next()
   else if (requiresAuth && !currentUser) next('login')
