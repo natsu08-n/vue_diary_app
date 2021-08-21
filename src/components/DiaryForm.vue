@@ -1,7 +1,21 @@
 <template>
   <div>
-    <!-- 検索 -->
-    <input type="text" v-model="searchWord" placeholder="キーワード検索">
+    <!-- <form action="" @submit.prevent="searchFirestoreDb"> -->
+
+    <!-- 後でv-date-pickerタグに　:masks="masks"　をつける -->
+    <v-date-picker
+      :attributes="searchAttrs"
+      v-model="searchWord"
+      :masks="masks"
+    >
+      <template v-slot="{ inputValue, inputEvents }">
+        <input
+          class="form__inputDate"
+          v-bind:value="inputValue"
+          v-on="inputEvents"
+        />
+      </template>
+    </v-date-picker>
     <button @click="searchFirestoreDb">検索</button>
 
     <!-- @submit.preventでsubmitのページ遷移処理をキャンセルできる -->
@@ -59,6 +73,7 @@ import VCalendar from "v-calendar";
 import dayjs from "dayjs";
 import { db } from "../main";
 import firebase from "firebase";
+import helpers from '../helpers/index.js'
 
 Vue.use(VCalendar);
 
@@ -76,6 +91,9 @@ export default {
           },
         },
       ],
+      masks: {
+        input: "YYYY-MM-DD",
+      },
       attrs: [
         {
           key: "today",
@@ -104,20 +122,23 @@ export default {
       // this.snapShot.push(item);
       this.saveItem();
       this.newItem = "";
+      console.log(helpers.contentTypeRadios())
     },
     saveItem: function () {
-      db.collection("diaries")
-        .add({
-          date: this.date,
-          contents: this.newItem,
-        })
-        .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id);
-          this.getFirestoreDb();
-        })
-        .catch((error) => {
-          console.error("Error adding document: ", error);
-        });
+      // db.collection("diaries")
+      //   .add({
+      //     date: this.date,
+      //     contents: this.newItem,
+      //   })
+      //   .then((docRef) => {
+      //     console.log("Document written with ID: ", docRef.id);
+      //     this.date = "";
+      //     this.getFirestoreDb();
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error adding document: ", error);
+      //   });
+      helpers.firestoreFn(this.date, this.newItem)
     },
     deleteFirestoreDb: function (id) {
       db.collection("diaries")
@@ -147,12 +168,14 @@ export default {
       let filterWord = firebase.firestore.Timestamp.fromDate(
         new Date(this.searchWord)
       ); // 日付は日付型と比較するため Date型にする
+      console.log(filterWord);
       db.collection("diaries")
         .orderBy("date", "desc")
-        .startAt(filterWord)
+        .endAt(filterWord) //startAt〜endAtで期間が指定できる
         .get()
         .then((querySnapshot) => {
           this.snapShot = querySnapshot.docs;
+          this.searchWord = "";
         })
         .catch((error) => {
           console.log("Error getting documents: ", error);
