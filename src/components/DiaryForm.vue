@@ -139,47 +139,51 @@ export default {
       //     console.error("Error adding document: ", error);
       //   });
       helpers.firestoreFn(this.date, this.newItem)
+      helpers.getDb(this.snapShot)
     },
     deleteFirestoreDb: function (id) {
-      db.collection("diaries")
-        .doc(id)
-        .delete({
-          date: this.date,
-          contents: this.newItem,
-        })
-        .then(() => {
-          console.log("Document successfully deleted!");
-          this.snapShot = this.snapShot.filter((item) => item.id !== id);
-        })
-        .catch((error) => {
-          console.error("Error removing document: ", error);
-        });
+      // db.collection("diaries")
+      //   .doc(id)
+      //   .delete({
+      //     date: this.date,
+      //     contents: this.newItem,
+      //   })
+      //   .then(() => {
+      //     console.log("Document successfully deleted!");
+      //     this.snapShot = this.snapShot.filter((item) => item.id !== id);
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error removing document: ", error);
+      //   });
+      helpers.deleteDb(this.date, this.newItem, this.snapShot, id)
     },
-    getFirestoreDb: function () {
-      db.collection("diaries")
-        .orderBy("date", "desc")
-        .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
-        .get()
-        .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs;
-        });
+    getFirestoreDb: async function () {
+      // db.collection("diaries")
+      //   .orderBy("date", "desc")
+      //   .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
+      //   .get()
+      //   .then((querySnapshot) => {
+      //     this.snapShot = querySnapshot.docs;
+      //   });
+      this.snapShot = await helpers.getDb()
     },
     searchFirestoreDb: function () {
       let filterWord = firebase.firestore.Timestamp.fromDate(
         new Date(this.searchWord)
       ); // 日付は日付型と比較するため Date型にする
       console.log(filterWord);
-      db.collection("diaries")
-        .orderBy("date", "desc")
-        .endAt(filterWord) //startAt〜endAtで期間が指定できる
-        .get()
-        .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs;
-          this.searchWord = "";
-        })
-        .catch((error) => {
-          console.log("Error getting documents: ", error);
-        });
+      // db.collection("diaries")
+      //   .orderBy("date", "desc")
+      //   .endAt(filterWord) //startAt〜endAtで期間が指定できる
+      //   .get()
+      //   .then((querySnapshot) => {
+      //     this.snapShot = querySnapshot.docs;
+      //     this.searchWord = "";
+      //   })
+      //   .catch((error) => {
+      //     console.log("Error getting documents: ", error);
+      //   });
+      helpers.searchDb(this.snapShot, this.searchWord, this.filterWord)
     },
   },
   mounted: function () {
