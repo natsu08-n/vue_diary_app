@@ -1,12 +1,8 @@
 import { db } from "../main";
 
+// async awaitに書き換え
+
 export default {
-  // contentTypeRadios() {
-  //   return [
-  //     { label: 'デフォルト', value: 0 },
-  //     { label: 'オプション付き', value: 1 },
-  //   ]
-  // },
   firestoreFn(date, newItem, snapShot) {
     db.collection("diaries")
         .add({
@@ -38,12 +34,13 @@ export default {
           console.error("Error removing document: ", error);
         });
   },
+  //名前をもっと仕事内容を表すものに変更
   async getDb() {
     const response = await db.collection("diaries") //非同期
     .orderBy("date", "desc")
     .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
     .get()
-    .then((querySnapshot) => {
+    .then((querySnapshot) => { //resolveした時
       return querySnapshot.docs;
     });
     return response

@@ -165,7 +165,7 @@ export default {
       //   .then((querySnapshot) => {
       //     this.snapShot = querySnapshot.docs;
       //   });
-      this.snapShot = await helpers.getDb()
+      this.snapShot = await helpers.getDb() //helpers.getDb()が返す値はquerySnapshot.docs
     },
     searchFirestoreDb: function () {
       let filterWord = firebase.firestore.Timestamp.fromDate(
