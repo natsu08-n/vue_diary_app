@@ -122,68 +122,18 @@ export default {
       // this.snapShot.push(item);
       this.saveItem();
       this.newItem = "";
-      console.log(helpers.contentTypeRadios())
     },
-    saveItem: function () {
-      // db.collection("diaries")
-      //   .add({
-      //     date: this.date,
-      //     contents: this.newItem,
-      //   })
-      //   .then((docRef) => {
-      //     console.log("Document written with ID: ", docRef.id);
-      //     this.date = "";
-      //     this.getFirestoreDb();
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error adding document: ", error);
-      //   });
-      helpers.firestoreFn(this.date, this.newItem)
-      helpers.getDb(this.snapShot)
+    saveItem: async function () {
+      await helpers.firestoreFn(this.date, this.newItem)
     },
-    deleteFirestoreDb: function (id) {
-      // db.collection("diaries")
-      //   .doc(id)
-      //   .delete({
-      //     date: this.date,
-      //     contents: this.newItem,
-      //   })
-      //   .then(() => {
-      //     console.log("Document successfully deleted!");
-      //     this.snapShot = this.snapShot.filter((item) => item.id !== id);
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error removing document: ", error);
-      //   });
-      helpers.deleteDb(this.date, this.newItem, this.snapShot, id)
+    deleteFirestoreDb: async function (id) {
+      await helpers.deleteDb(this.date, this.newItem, this.snapShot, id)
     },
     getFirestoreDb: async function () {
-      // db.collection("diaries")
-      //   .orderBy("date", "desc")
-      //   .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
-      //   .get()
-      //   .then((querySnapshot) => {
-      //     this.snapShot = querySnapshot.docs;
-      //   });
       this.snapShot = await helpers.getDb() //helpers.getDb()が返す値はquerySnapshot.docs
     },
-    searchFirestoreDb: function () {
-      let filterWord = firebase.firestore.Timestamp.fromDate(
-        new Date(this.searchWord)
-      ); // 日付は日付型と比較するため Date型にする
-      console.log(filterWord);
-      // db.collection("diaries")
-      //   .orderBy("date", "desc")
-      //   .endAt(filterWord) //startAt〜endAtで期間が指定できる
-      //   .get()
-      //   .then((querySnapshot) => {
-      //     this.snapShot = querySnapshot.docs;
-      //     this.searchWord = "";
-      //   })
-      //   .catch((error) => {
-      //     console.log("Error getting documents: ", error);
-      //   });
-      helpers.searchDb(this.snapShot, this.searchWord, this.filterWord)
+    searchFirestoreDb: async function () {
+      this.snapShot = await helpers.searchDb(this.searchWord)
     },
   },
   mounted: function () {
