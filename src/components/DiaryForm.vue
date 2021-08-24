@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- <form action="" @submit.prevent="searchFirestoreDb"> -->
-
     <!-- 後でv-date-pickerタグに　:masks="masks"　をつける -->
     <v-date-picker
       :attributes="searchAttrs"
@@ -73,7 +71,7 @@ import VCalendar from "v-calendar";
 import dayjs from "dayjs";
 import { db } from "../main";
 import firebase from "firebase";
-import helpers from '../helpers/index.js'
+import helpers from "../helpers/index.js";
 
 Vue.use(VCalendar);
 
@@ -113,27 +111,31 @@ export default {
     };
   },
   methods: {
-    addItem: function () {
+    getFirestoreDb: async function () {
+      this.snapShot = await helpers.getLimitedDiaryDb();
+    },
+    addItem: async function () {
       let item = {
         // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
         date: this.date,
         contents: this.newItem,
       };
-      // this.snapShot.push(item);
-      this.saveItem();
+      await this.saveItem();
       this.newItem = "";
+      this.date = "";
+      this.getFirestoreDb();
     },
     saveItem: async function () {
-      await helpers.firestoreFn(this.date, this.newItem)
+      await helpers.addDiaryDb(this.date, this.newItem).then(() => {
+        helpers.getLimitedDiaryDb();
+      });
     },
     deleteFirestoreDb: async function (id) {
-      await helpers.deleteDb(this.date, this.newItem, this.snapShot, id)
-    },
-    getFirestoreDb: async function () {
-      this.snapShot = await helpers.getDb() //helpers.getDb()が返す値はquerySnapshot.docs
+      await helpers.deleteDiaryDb(this.date, this.newItem, this.snapShot, id);
+      this.getFirestoreDb();
     },
     searchFirestoreDb: async function () {
-      this.snapShot = await helpers.searchDb(this.searchWord)
+      this.snapShot = await helpers.searchSpecificDateDb(this.searchWord);
     },
   },
   mounted: function () {
