@@ -1,8 +1,22 @@
 <template>
   <div>
-    <!-- 検索 -->
-    <input type="text" v-model="searchWord" placeholder="キーワード検索">
-    <button @click="searchFirestoreDb">検索</button>
+    <!-- 後でv-date-pickerタグに　:masks="masks"　をつける -->
+    <div class="form__search">
+    <v-date-picker
+      :attributes="searchAttrs"
+      v-model="searchWord"
+      :masks="masks"
+    >
+      <template v-slot="{ inputValue, inputEvents }">
+        <input
+          class="form__inputDate form_inputSearch"
+          v-bind:value="inputValue"
+          v-on="inputEvents"
+        />
+      </template>
+    </v-date-picker>
+    <button class="card__searchBtn" @click="searchFirestoreDb">検索</button>
+    </div>
 
     <!-- @submit.preventでsubmitのページ遷移処理をキャンセルできる -->
     <form action="" @submit.prevent="addItem">
@@ -57,8 +71,7 @@
 import Vue from "vue";
 import VCalendar from "v-calendar";
 import dayjs from "dayjs";
-import { db } from "../main";
-import firebase from "firebase";
+import helpers from "../helpers/index.js";
 
 Vue.use(VCalendar);
 
@@ -76,6 +89,9 @@ export default {
           },
         },
       ],
+      masks: {
+        input: "YYYY-MM-DD",
+      },
       attrs: [
         {
           key: "today",
@@ -95,68 +111,30 @@ export default {
     };
   },
   methods: {
-    addItem: function () {
-      let item = {
-        // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
-        date: this.date,
-        contents: this.newItem,
-      };
-      // this.snapShot.push(item);
-      this.saveItem();
+    getFirestoreDb: async function () {
+      this.snapShot = await helpers.getLimitedDiaryDb();
+    },
+    addItem: async function () {
+      if(this.newItem === '' || this.date === '') {
+        alert('空です！')
+        return
+      }
+      await this.saveItem();
       this.newItem = "";
+      this.date = "";
+      this.getFirestoreDb();
     },
-    saveItem: function () {
-      db.collection("diaries")
-        .add({
-          date: this.date,
-          contents: this.newItem,
-        })
-        .then((docRef) => {
-          console.log("Document written with ID: ", docRef.id);
-          this.getFirestoreDb();
-        })
-        .catch((error) => {
-          console.error("Error adding document: ", error);
-        });
+    saveItem: async function () {
+      await helpers.addDiaryDb(this.date, this.newItem).then(() => {
+        helpers.getLimitedDiaryDb(); //addDiaryDbが終わったらthenの中を実行
+      });
     },
-    deleteFirestoreDb: function (id) {
-      db.collection("diaries")
-        .doc(id)
-        .delete({
-          date: this.date,
-          contents: this.newItem,
-        })
-        .then(() => {
-          console.log("Document successfully deleted!");
-          this.snapShot = this.snapShot.filter((item) => item.id !== id);
-        })
-        .catch((error) => {
-          console.error("Error removing document: ", error);
-        });
+    deleteFirestoreDb: async function (id) {
+      await helpers.deleteDiaryDb(this.date, this.newItem, this.snapShot, id);
+      this.getFirestoreDb();
     },
-    getFirestoreDb: function () {
-      db.collection("diaries")
-        .orderBy("date", "desc")
-        .limit(15) // firestoreフィールドのdateプロパティで並び替え。descは降順、ascは昇順。とりあえず15個のデータを表示。
-        .get()
-        .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs;
-        });
-    },
-    searchFirestoreDb: function () {
-      let filterWord = firebase.firestore.Timestamp.fromDate(
-        new Date(this.searchWord)
-      ); // 日付は日付型と比較するため Date型にする
-      db.collection("diaries")
-        .orderBy("date", "desc")
-        .startAt(filterWord)
-        .get()
-        .then((querySnapshot) => {
-          this.snapShot = querySnapshot.docs;
-        })
-        .catch((error) => {
-          console.log("Error getting documents: ", error);
-        });
+    searchFirestoreDb: async function () {
+      this.snapShot = await helpers.searchSpecificDateDb(this.searchWord);
     },
   },
   mounted: function () {
@@ -209,12 +187,23 @@ li {
   width: 100%;
 }
 
+.form__search {
+  position: absolute;
+  top: 18px;
+  left: 40vw
+}
+
+.form_inputSearch {
+  border-radius: 10px;
+}
+
 .form__inputDate,
 textarea {
   border: 1px solid #4c4a4a;
   width: 220px;
   padding: 10px;
 }
+
 
 textarea {
   resize: none;
@@ -236,7 +225,8 @@ textarea {
 }
 
 .form__submit:hover,
-.card__deleteBtn:hover {
+.card__deleteBtn:hover,
+.card__searchBtn:hover {
   cursor: pointer;
   opacity: 0.5;
 }
@@ -246,5 +236,16 @@ textarea {
   color: #4c4a4a;
   font-size: 14px;
   width: 100px;
+}
+
+.card__searchBtn {
+  background-color: #eee;
+  border: none;
+  border-radius: 10px;
+  color: #4c4a4a;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  width: 80px;
 }
 </style>
