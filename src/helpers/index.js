@@ -22,7 +22,7 @@ export default {
       .then((docRef) => {
         console.log("Document written with ID: ", docRef.id);
         date = "";
-        // this.getFirestoreDb(); //DiaryFormで.thenでつなげてreturnに変更
+        // this.getFirestoreDb(); //別の仕事をしない！
       })
       .catch((error) => {
         console.error("Error adding document: ", error);

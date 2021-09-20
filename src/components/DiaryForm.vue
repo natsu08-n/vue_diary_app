@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- 後でv-date-pickerタグに　:masks="masks"　をつける -->
+    <div class="form__search">
     <v-date-picker
       :attributes="searchAttrs"
       v-model="searchWord"
@@ -8,13 +9,14 @@
     >
       <template v-slot="{ inputValue, inputEvents }">
         <input
-          class="form__inputDate"
+          class="form__inputDate form_inputSearch"
           v-bind:value="inputValue"
           v-on="inputEvents"
         />
       </template>
     </v-date-picker>
-    <button @click="searchFirestoreDb">検索</button>
+    <button class="card__searchBtn" @click="searchFirestoreDb">検索</button>
+    </div>
 
     <!-- @submit.preventでsubmitのページ遷移処理をキャンセルできる -->
     <form action="" @submit.prevent="addItem">
@@ -69,8 +71,6 @@
 import Vue from "vue";
 import VCalendar from "v-calendar";
 import dayjs from "dayjs";
-import { db } from "../main";
-import firebase from "firebase";
 import helpers from "../helpers/index.js";
 
 Vue.use(VCalendar);
@@ -115,11 +115,10 @@ export default {
       this.snapShot = await helpers.getLimitedDiaryDb();
     },
     addItem: async function () {
-      let item = {
-        // diaryDate: dayjs(this.date).format("YYYY-MM-DD"),
-        date: this.date,
-        contents: this.newItem,
-      };
+      if(this.newItem === '' || this.date === '') {
+        alert('空です！')
+        return
+      }
       await this.saveItem();
       this.newItem = "";
       this.date = "";
@@ -127,7 +126,7 @@ export default {
     },
     saveItem: async function () {
       await helpers.addDiaryDb(this.date, this.newItem).then(() => {
-        helpers.getLimitedDiaryDb();
+        helpers.getLimitedDiaryDb(); //addDiaryDbが終わったらthenの中を実行
       });
     },
     deleteFirestoreDb: async function (id) {
@@ -188,12 +187,23 @@ li {
   width: 100%;
 }
 
+.form__search {
+  position: absolute;
+  top: 18px;
+  left: 40vw
+}
+
+.form_inputSearch {
+  border-radius: 10px;
+}
+
 .form__inputDate,
 textarea {
   border: 1px solid #4c4a4a;
   width: 220px;
   padding: 10px;
 }
+
 
 textarea {
   resize: none;
@@ -215,7 +225,8 @@ textarea {
 }
 
 .form__submit:hover,
-.card__deleteBtn:hover {
+.card__deleteBtn:hover,
+.card__searchBtn:hover {
   cursor: pointer;
   opacity: 0.5;
 }
@@ -225,5 +236,16 @@ textarea {
   color: #4c4a4a;
   font-size: 14px;
   width: 100px;
+}
+
+.card__searchBtn {
+  background-color: #eee;
+  border: none;
+  border-radius: 10px;
+  color: #4c4a4a;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  width: 80px;
 }
 </style>

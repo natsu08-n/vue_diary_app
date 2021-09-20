@@ -38,6 +38,10 @@ export default {
 </script>
 
 <style scoped>
+ul {
+  position: relative;
+}
+
 li {
   list-style: none;
   margin: 0 0 0 auto;
